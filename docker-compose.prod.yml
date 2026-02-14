@@ -7,8 +7,11 @@ services:
     restart: always
     ports:
       - "80:80"
-    env_file:
-      - .env
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
     depends_on:
       - db
     networks:
@@ -18,10 +21,9 @@ services:
     image: mysql:8.0.35-debian
     container_name: db-prod
     restart: always
-    env_file:
-      - .env
-    ports:
-      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
     volumes:
       - db_data_prod:/var/lib/mysql
       - ./schema.sql:/docker-entrypoint-initdb.d/init.sql
