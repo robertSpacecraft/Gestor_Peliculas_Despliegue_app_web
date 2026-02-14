@@ -1,10 +1,11 @@
 <?php
 
 //Guardo los datos de conexión de la base de datos en un fichero YML
-function getDBConfig() {
-    $dbFileConfig=dirname(__FILE__)."/../../dbconfiguration.yml";
-    
-    // Default values or fallback to YML
+function getDBConfig()
+{
+    $dbFileConfig = dirname(__FILE__) . "/../../dbconfiguration.yml";
+
+    // Valores por defecto o respaldo del YML
     $config = [
         "dbname" => getenv('DB_NAME'),
         "host" => getenv('DB_HOST'),
@@ -12,18 +13,18 @@ function getDBConfig() {
         "pass" => getenv('DB_PASS')
     ];
 
-    // If env vars are not set, try to load from YML (Backward Compatibility/Local generic setup)
+    // Si las variables de entorno no están configuradas, intentar cargar desde YML (Compatibilidad hacia atrás/Configuración local genérica)
     if (!$config["dbname"] && file_exists($dbFileConfig) && function_exists('yaml_parse_file')) {
         $configYML = yaml_parse_file($dbFileConfig);
         if ($configYML) {
             $config["dbname"] = $configYML["dbname"];
-            $config["host"] = $configYML["ip"]; // Mapping 'ip' from YML to 'host'
+            $config["host"] = $configYML["ip"]; // Mapeando 'ip' del YML a 'host'
             $config["user"] = $configYML["user"];
             $config["pass"] = $configYML["pass"];
         }
     }
 
-	$cad = sprintf("mysql:dbname=%s;host=%s;charset=UTF8", $config["dbname"], $config["host"]);
+    $cad = sprintf("mysql:dbname=%s;host=%s;charset=UTF8", $config["dbname"], $config["host"]);
 
     $result = array(
         "cad" => $cad,
@@ -31,28 +32,30 @@ function getDBConfig() {
         "pass" => $config["pass"]
     );
 
-	return $result;
+    return $result;
 }
 
-function getDBConnection() {
+function getDBConnection()
+{
     try {
         $res = getDBConfig();
 
         $bd = new PDO($res["cad"], $res["user"], $res["pass"]);
 
         return $bd;
-    } catch(PDOException $e) {
+    } catch (PDOException $e) {
         return null;
     }
 }
 
 /* ------------ LOGIN --------------- */
-function checkLogin($email, $password) {
+function checkLogin($email, $password)
+{
     try {
-    	$bd = getDBConnection();
+        $bd = getDBConnection();
 
-        if(!is_null($bd)) {
-            $sqlPrepared = $bd->prepare("SELECT email from user WHERE email = :email AND password = :password " );
+        if (!is_null($bd)) {
+            $sqlPrepared = $bd->prepare("SELECT email from user WHERE email = :email AND password = :password ");
             $params = array(
                 ':email' => $email,
                 ':password' => $password
@@ -60,21 +63,22 @@ function checkLogin($email, $password) {
             $sqlPrepared->execute($params);
 
             return $sqlPrepared->rowCount() > 0 ? true : false;
-         } else
+        } else
             return $bd;
 
     } catch (PDOException $e) {
-       return null;
+        return null;
     }
 }
 
 
 /* ------------ PELÍCULAS  --------------- */
-function getFilmsDB() {
+function getFilmsDB()
+{
     try {
-    	$bd = getDBConnection();
+        $bd = getDBConnection();
 
-        if(!is_null($bd)) {
+        if (!is_null($bd)) {
             $sqlPrepared = $bd->prepare("SELECT id,name, director, classification from film");
             $sqlPrepared->execute();
 
@@ -83,15 +87,16 @@ function getFilmsDB() {
             return $bd;
 
     } catch (PDOException $e) {
-       return null;
+        return null;
     }
 }
 
-function getFilmDB($id) {
+function getFilmDB($id)
+{
     try {
-    	$bd = getDBConnection();
+        $bd = getDBConnection();
 
-        if(!is_null($bd)) {
+        if (!is_null($bd)) {
             $sqlPrepared = $bd->prepare("SELECT * from film WHERE id = :id");
             $params = array(
                 ':id' => $id,
@@ -103,15 +108,16 @@ function getFilmDB($id) {
             return $bd;
 
     } catch (PDOException $e) {
-       return null;
+        return null;
     }
 }
 
-function addFilmDB($data) {
+function addFilmDB($data)
+{
     try {
-    	$bd = getDBConnection();
+        $bd = getDBConnection();
 
-        if(!is_null($bd)) {
+        if (!is_null($bd)) {
 
             $sqlPrepared = $bd->prepare("
                 INSERT INTO film (name,director,classification,img,plot)
@@ -128,22 +134,23 @@ function addFilmDB($data) {
 
             return $sqlPrepared->execute($params);
 
-            return $sqlPrepared->rowCount();// check affected rows using rowCount
+            return $sqlPrepared->rowCount();// verificar filas afectadas usando rowCount
 
         } else
             return $bd;
 
     } catch (PDOException $e) {
-       return null;
+        return null;
     }
 }
 
 
-function updateFilmDB($data) {
+function updateFilmDB($data)
+{
     try {
-    	$bd = getDBConnection();
+        $bd = getDBConnection();
 
-        if(!is_null($bd)) {
+        if (!is_null($bd)) {
 
             $sqlPrepared = $bd->prepare("
                 UPDATE film
@@ -162,21 +169,22 @@ function updateFilmDB($data) {
 
             return $sqlPrepared->execute($params);
 
-            return $sqlPrepared->rowCount();// check affected rows using rowCount
+            return $sqlPrepared->rowCount();// verificar filas afectadas usando rowCount
 
         } else
             return $bd;
 
     } catch (PDOException $e) {
-       return null;
+        return null;
     }
 }
 
-function deleteFilmDB($id) {
+function deleteFilmDB($id)
+{
     try {
-    	$bd = getDBConnection();
+        $bd = getDBConnection();
 
-        if(!is_null($bd)) {
+        if (!is_null($bd)) {
 
             $sqlPrepared = $bd->prepare("
                 DELETE FROM film
@@ -189,12 +197,12 @@ function deleteFilmDB($id) {
 
             return $sqlPrepared->execute($params);
 
-            return $sqlPrepared->rowCount();// check affected rows using rowCount
+            return $sqlPrepared->rowCount();// verificar filas afectadas usando rowCount
 
         } else
             return $bd;
 
     } catch (PDOException $e) {
-       return null;
+        return null;
     }
 }

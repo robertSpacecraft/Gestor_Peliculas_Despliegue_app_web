@@ -1,9 +1,10 @@
 services:
   backend:
     build:
-      context: .
+      context: ./backend
       dockerfile: Dockerfile
     container_name: backend-prod
+    restart: always
     ports:
       - "80:80"
     env_file:
